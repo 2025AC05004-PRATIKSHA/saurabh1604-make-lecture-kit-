@@ -1,0 +1,1002 @@
+\documentclass[a4paper,11pt]{article}
+
+% ---- Encoding & fonts -------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\IfFileExists{mathpazo.sty}{\usepackage[sc]{mathpazo}\linespread{1.06}}{\usepackage{lmodern}}
+\IfFileExists{helvet.sty}{\usepackage[scaled=0.9]{helvet}}{}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage{microtype}
+
+% ---- Geometry ---------------------------------------------------------------
+\usepackage[a4paper,top=26mm,bottom=26mm,left=27mm,right=27mm,
+            headheight=14pt,headsep=12mm,footskip=12mm]{geometry}
+
+% ---- Math -------------------------------------------------------------------
+\usepackage{amsmath,amssymb}
+
+% ---- Graphics, tables, colour ----------------------------------------------
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table,svgnames]{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{needspace}
+
+% ---- Callout boxes ------------------------------------------------------------
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% ---- Lists & spacing --------------------------------------------------------
+\usepackage{enumitem}
+\setlist{leftmargin=1.5em,topsep=4pt,itemsep=3pt}
+
+\newlist{steps}{enumerate}{1}
+\setlist[steps]{label={\sffamily\small\bfseries\color{accent}Step \arabic*},
+  leftmargin=4.2em, labelwidth=3.6em, labelsep=0.6em, labelindent=0pt,
+  align=left, topsep=6pt, itemsep=5pt}
+\usepackage{parskip}
+\setlength{\parskip}{0.55em plus 0.1em}
+
+% ---- Headers / footers ------------------------------------------------------
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\hypersetup{breaklinks=true}
+
+% ---- Colours ----------------------------------------------------------------
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{inktext}{HTML}{1F2328}
+\definecolor{mutedtext}{HTML}{6B7280}
+\definecolor{hairline}{HTML}{D0D5DD}
+\definecolor{wash}{HTML}{F5F6F8}
+
+\colorlet{navy}{accent}      \colorlet{navyrule}{hairline}
+\colorlet{intuFrame}{accent} \colorlet{everyFrame}{accent} \colorlet{workFrame}{accent}
+\colorlet{watchFrame}{inktext} \colorlet{keyFrame}{accent} \colorlet{waitFrame}{accent}
+
+\color{inktext}
+\hypersetup{linkcolor=accent,urlcolor=accent,citecolor=accent}
+
+\newcommand{\SeriesName}{Natural Language Processing}
+\newcommand{\TopicTitle}{Foundations, Preprocessing, and Vector Semantics}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\scriptsize\color{mutedtext}\MakeUppercase{\SeriesName}}
+\fancyhead[R]{\sffamily\scriptsize\color{mutedtext}\TopicTitle}
+\fancyfoot[C]{\sffamily\footnotesize\color{mutedtext}\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\sffamily\footnotesize\color{mutedtext}\thepage}}
+
+\titleformat{\section}
+  {\sffamily\Large\bfseries\color{inktext}}
+  {\color{accent}\thesection}{0.7em}{}
+\titleformat{\subsection}
+  {\sffamily\large\bfseries\color{inktext}}
+  {\color{accent}\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{26pt}{6pt}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+\newcommand{\secsub}[1]{%
+  \noindent{\large\itshape\color{mutedtext}#1}\par
+  \vspace{2pt}{\color{hairline}\rule{\linewidth}{0.4pt}}\par\medskip}
+
+\newcommand{\flipanswer}[1]{\par\noindent\hfill\rotatebox[origin=c]{180}{\parbox{0.9\linewidth}{\small\color{mutedtext}#1}}\par\medskip}
+
+\tcbset{
+  quiet/.style 2 args={
+    enhanced, breakable, sharp corners,
+    colback=#2, colframe=#2, boxrule=0pt,
+    borderline west={1.6pt}{0pt}{#1},
+    left=12pt, right=10pt, top=7pt, bottom=7pt,
+    before skip=12pt, after skip=12pt,
+    fontupper=\normalsize, coltitle=#1,
+    fonttitle=\sffamily\scriptsize\bfseries,
+    attach title to upper={\par\smallskip},
+  }
+}
+\newcommand{\calloutlabel}[1]{\MakeUppercase{#1}}
+
+\newtcolorbox{intuition}{quiet={accent}{white},
+  title={\calloutlabel{The intuition}}}
+\newtcolorbox{everyday}{quiet={accent}{white},
+  title={\calloutlabel{Everyday picture}}}
+\newtcolorbox{worked}[1]{quiet={accent}{wash},
+  title={\calloutlabel{Worked example}\ \textperiodcentered\ {\normalfont\itshape\small\color{inktext}#1}}}
+\newtcolorbox{watchout}{quiet={inktext}{white},
+  title={\calloutlabel{Watch out}}}
+\newtcolorbox{waitwhat}{quiet={accent}{white},
+  title={\calloutlabel{Wait --- really?}}}
+\newtcolorbox{keytake}{quiet={accent}{white},
+  borderline north={0.4pt}{0pt}{hairline},
+  borderline south={0.4pt}{0pt}{hairline},
+  title={\upshape\calloutlabel{Key takeaway}}, fontupper=\normalsize\itshape}
+
+\newcommand{\titlebanner}[4]{%
+  \begingroup\raggedright
+  \vspace*{4mm}
+  {\sffamily\footnotesize\bfseries\color{accent}\MakeUppercase{#1}}\par
+  \vspace{7pt}
+  {\sffamily\bfseries\fontsize{26}{31}\selectfont\color{inktext}#2\par}
+  \vspace{7pt}
+  {\large\color{mutedtext}#3\par}
+  \vspace{12pt}
+  {\color{hairline}\rule{\linewidth}{0.5pt}}\par
+  \vspace{3pt}
+  {\sffamily\scriptsize\color{mutedtext}\MakeUppercase{#4}}\par
+  \vspace{10pt}
+  \endgroup
+}
+
+\captionsetup[figure]{font={small,color=mutedtext},labelfont={bf,sf,color=inktext},
+  labelsep=period,justification=raggedright,singlelinecheck=false,skip=6pt}
+\setlength{\textfloatsep}{16pt plus 4pt minus 4pt}
+\setlength{\intextsep}{14pt plus 4pt minus 4pt}
+\renewcommand{\topfraction}{0.8}\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.15}\renewcommand{\floatpagefraction}{0.75}
+\newcommand{\housefig}[3][0.86]{%
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=#1\linewidth]{#2}%
+    \caption{#3}
+  \end{figure}%
+}
+
+\renewcommand{\arraystretch}{1.18}
+\newcommand{\vocab}[1]{\textbf{#1}}
+
+\begin{document}
+
+\thispagestyle{fancy}
+
+\titlebanner
+  {\SeriesName}
+  {Natural Language Processing: Foundations, Preprocessing, and Vector Semantics}
+  {A complete first-principles study companion covering linguistic structure, text cleaning, evaluation math, and dense word embeddings}
+  {From First Principles $\cdot$ Every Equation and Numerical Calculation Stepped Through in Full}
+
+\noindent\textbf{How to use this companion.}
+This study guide explains the core foundations of natural language processing step by step.
+We assume this is your very first time meeting this topic.
+Every idea begins with an everyday analogy before any math appears.
+Whenever a formula is introduced, we name every single symbol.
+We write down every algebraic step from one line to the next.
+We explain in one plain sentence why each step is taken.
+All numerical calculations are worked out in full without skipping numbers.
+The callout boxes are marked by clear uppercase labels:
+\textsf{\small\textbf{THE INTUITION}} states the core mechanism in simple words.
+\textsf{\small\textbf{EVERYDAY PICTURE}} connects the idea to familiar daily life.
+\textsf{\small\textbf{WORKED EXAMPLE}} walks through full calculations on a light grey background.
+\textsf{\small\textbf{WATCH OUT}} highlights common traps and mistakes.
+\textsf{\small\textbf{WAIT --- REALLY?}} points out honest, surprising truths.
+\textsf{\small\textbf{KEY TAKEAWAY}} summarizes the main rule to keep in mind.
+
+\section{The Mystery of Language: Rules, Meaning, and Ambiguity}
+\secsub{Computers require rigid formal rules, while human speech bends syntax and depends on shared context.}
+
+Computers run on formal code like Python or SQL.
+In code, every single character follows strict grammar rules.
+If you omit one bracket, the entire compiler halts.
+Human language behaves very differently.
+Linguists call human languages like English, Hindi, and Malayalam \vocab{natural languages}.
+They grew naturally across generations of human interaction.
+They change continually, carry exceptions, and depend on shared cultural understanding.
+
+\begin{everyday}
+Think of ordering breakfast at a cafe counter.
+You look at the server and ask: ``Can you pass the salt?''
+A literal computer interprets this as an inquiry about your physical arm strength.
+The human server understands your intent and hands you the shaker.
+Natural communication packs hidden layers of social intention that never appear in a dictionary definition.
+\end{everyday}
+
+\begin{intuition}
+\vocab{Natural Language Processing} (NLP) builds computational systems to analyze, understand, and generate human speech.
+NLP divides into two primary directions:
+\vocab{Natural Language Understanding} (NLU) maps human sentences into structured computer concepts.
+\vocab{Natural Language Generation} (NLG) maps computer data back into fluent human sentences.
+\end{intuition}
+
+\subsection{Position in Computer Science and Brief History}
+Where does NLP fit within computing?
+NLP sits at the crossroads of Artificial Intelligence, Computer Science, and Linguistics.
+It connects directly to Information Retrieval, Machine Translation, and Machine Learning.
+Historians trace NLP across four major eras:
+\begin{enumerate}
+  \item \textbf{1950s--1980s (Symbolic Era)}: Hand-crafted grammatical rules and dictionary lookups.
+  \item \textbf{1990s--2000s (Statistical Era)}: Probabilistic counts and $N$-gram language models.
+  \item \textbf{2010s (Neural Era)}: Dense word vectors, recurrent neural nets, and word2vec.
+  \item \textbf{2020s (Transformer and LLM Era)}: Large language models and prompt engineering.
+\end{enumerate}
+
+\subsection{The Six Levels of Linguistic Analysis}
+To parse language, computational models inspect text across six distinct levels:
+\begin{enumerate}
+  \item \vocab{Phonetics and Orthography}: The physical sounds we speak and the written spelling characters.
+  \item \vocab{Morphology}: The internal structure of words formed by basic units called \vocab{morphemes}.
+        For instance, ``unhappiness'' contains three morphemes: ``un-'' (prefix meaning not), ``happy'' (root stem), and ``-ness'' (noun suffix).
+  \item \vocab{Syntax}: The grammatical arrangement of words into valid hierarchical sentences.
+  \item \vocab{Semantics}: The literal meaning of individual words and how they combine into propositions.
+  \item \vocab{Pragmatics}: How real-world context and speaker intent change literal meaning into social action.
+  \item \vocab{Discourse}: How meaning links across multiple consecutive sentences in a story or dialogue.
+\end{enumerate}
+
+\housefig[0.72]{figures/fig_linguistic_levels.png}{The six levels of linguistic analysis. Each level feeds information upward to build complete understanding.}
+
+\subsection{The Challenge of Ambiguity}
+Why is NLP hard?
+The main reason is \vocab{ambiguity}.
+A single surface string can trigger multiple competing interpretations:
+\begin{itemize}
+  \item \vocab{Lexical Ambiguity}: One word has multiple distinct meanings.
+        In ``He went to the bank'', the word ``bank'' could mean a financial building or a muddy river edge.
+  \item \vocab{Syntactic Ambiguity}: A sentence allows multiple valid grammatical parse trees.
+        In ``I saw the man with a telescope'', does the telescope belong to the observer or to the man?
+  \item \vocab{Semantic Ambiguity}: Words combine into multiple literal readings.
+        In ``Flies like rice'', are insects enjoying rice, or does someone toss grain quickly?
+  \item \vocab{Pragmatic Ambiguity}: Context dictates whether a phrase is literal, sarcastic, or a request.
+\end{itemize}
+
+\begin{worked}{Resolving syntactic attachment ambiguity with grammar trees}
+Consider the classic sentence: ``I saw the man with a telescope.''
+Unpack both structural parse trees and explain why a parser needs real-world context.
+\begin{steps}
+  \item \textbf{Identify the movable prepositional phrase.}
+        The phrase is ``with a telescope''.
+  \item \textbf{Test Verb Attachment (Instrument reading).}
+        The phrase attaches directly to the verb phrase ``saw''.
+        The telescope functions as the instrument of perception.
+        Meaning: ``Using a telescope, I observed a man.''
+  \item \textbf{Test Noun Phrase Attachment (Attribute reading).}
+        The phrase attaches directly to the noun phrase ``the man''.
+        The telescope serves as an attribute or possession of that man.
+        Meaning: ``I saw a man who held a telescope.''
+  \item \textbf{State the conclusion.}
+        Both readings follow correct English syntax rules.
+        A computer cannot resolve this choice without outside world knowledge.
+\end{steps}
+\end{worked}
+
+\begin{watchout}
+Keep polysemy distinct from homonymy.
+\vocab{Polysemy} occurs when a single word holds related senses (like ``paper'' as a physical sheet or an academic article).
+\vocab{Homonymy} occurs when two completely unrelated words share spelling by historical coincidence (like financial ``bank'' and river ``bank'').
+\end{watchout}
+
+\begin{keytake}
+Human language operates on six layered levels from sounds to discourse.
+Ambiguity at every layer means algorithms must rely on surrounding context.
+\end{keytake}
+
+\textbf{Where it's used.}
+Voice assistants decode sound with phonetics.
+They parse syntax, extract semantics, and infer your intent through pragmatics.
+
+\section{The Text Preprocessing Pipeline: Cleaning and Normalizing}
+\secsub{Raw text contains noise; a four-step pipeline converts dirty strings into clean tokens.}
+
+Computer models cannot read raw, unformatted text files directly.
+Real text contains messy capitalization, odd punctuation marks, emojis, and slang.
+We process this text through a systematic pipeline before running machine learning algorithms.
+
+\housefig[0.85]{figures/fig_preprocessing_pipeline.png}{The text preprocessing pipeline. It transforms raw messy text into clean, normalized tokens.}
+
+The preprocessing pipeline follows four core stages:
+\begin{enumerate}
+  \item \vocab{Text Cleaning}: Converting letters to lowercase and removing special characters via regular expressions.
+  \item \vocab{Tokenization}: Splitting continuous sentences into individual words or punctuation marks.
+  \item \vocab{Stop-Word Removal}: Dropping frequent grammatical words like ``the'', ``is'', and ``at''.
+  \item \vocab{Stemming or Lemmatization}: Normalizing words down to their common dictionary root.
+\end{enumerate}
+
+\begin{everyday}
+Imagine harvesting vegetables from an earthy garden plot.
+First, you wash off the loose soil (text cleaning).
+Next, you chop the carrots into bite-sized pieces (tokenization).
+Then, you pick out the tough stems and leaves (stop-word removal).
+Finally, you peel them down to the edible core (lemmatization).
+\end{everyday}
+
+\begin{intuition}
+\vocab{Stemming} uses fast heuristic rules to chop off prefixes and suffixes.
+It acts like a fast kitchen knife.
+It often leaves non-words like ``studi'' for ``studying''.
+\vocab{Lemmatization} consults a full vocabulary database like WordNet.
+It inspects the word's part-of-speech role and returns a genuine dictionary headword, called a \vocab{lemma}.
+\end{intuition}
+
+\begin{worked}{Walking through the complete preprocessing pipeline}
+Take this raw message string: \texttt{"The 3 cats were happily playing, wasn't it great?!"}
+Show the exact result after each stage of the pipeline.
+\begin{steps}
+  \item \textbf{Clean characters and lowercase letters.}
+        Remove punctuation marks and lowercase letters:
+        \texttt{"the 3 cats were happily playing wasnt it great"}
+  \item \textbf{Tokenize text into a word list.}
+        Split by spaces into separate tokens:
+        \texttt{['the', '3', 'cats', 'were', 'happily', 'playing', 'wasnt', 'it', 'great']}
+  \item \textbf{Filter out standard English stop-words.}
+        Drop common words (\texttt{'the', 'were', 'it'}):
+        \texttt{['3', 'cats', 'happily', 'playing', 'wasnt', 'great']}
+  \item \textbf{Apply Porter stemming rules.}
+        Chop word endings using heuristic rules:
+        \texttt{'cats'} $\rightarrow$ \texttt{'cat'}, \texttt{'happily'} $\rightarrow$ \texttt{'happili'}, \texttt{'playing'} $\rightarrow$ \texttt{'play'}.
+  \item \textbf{Apply WordNet lemmatization with verb tags.}
+        Lookup genuine vocabulary headwords:
+        \texttt{'cats'} $\rightarrow$ \texttt{'cat'}, \texttt{'playing'} (tagged as verb) $\rightarrow$ \texttt{'play'}.
+        Notice \texttt{'happily'} remains \texttt{'happily'} because it is a valid dictionary adverb.
+\end{steps}
+\end{worked}
+
+\begin{watchout}
+Do not lowercase letters blindly when case carries key meaning.
+Converting ``US'' (the United States) into ``us'' (the pronoun) destroys geographic information.
+Decide if your task requires case sensitivity before running lowercase steps.
+\end{watchout}
+
+\begin{keytake}
+Preprocessing shrinks total vocabulary size.
+Stemming strips endings fast by rules, while lemmatization checks dictionary tags to return valid lemmas.
+\end{keytake}
+
+\textbf{Where it's used.}
+Search engines like Google preprocess billions of web pages.
+Lemmatization ensures a search for ``running shoe'' matches pages describing ``run shoes''.
+
+\section{Measuring Success: The Confusion Matrix and Metric Math}
+\secsub{Accuracy fails when classes are imbalanced; precision and recall reveal the truth.}
+
+When an NLP classifier labels text messages as spam or legitimate mail (ham), how do we measure performance?
+We evaluate predictions on a test set and tally counts in a $2 \times 2$ \vocab{confusion matrix}.
+
+\housefig[0.55]{figures/fig_confusion_matrix.png}{A $2 \times 2$ confusion matrix. It records true positives, false alarms, missed targets, and true negatives.}
+
+Let us define the four possible outcomes:
+\begin{itemize}
+  \item \vocab{True Positive ($TP$)}: Spam correctly identified as spam.
+  \item \vocab{False Positive ($FP$)}: Normal email wrongly flagged as spam (a false alarm).
+  \item \vocab{False Negative ($FN$)}: Spam wrongly left in the regular inbox (a missed detection).
+  \item \vocab{True Negative ($TN$)}: Normal email correctly left in the inbox.
+\end{itemize}
+
+Now we build every metric formula step by step, naming each symbol:
+
+\subsection{Accuracy}
+Accuracy measures the proportion of all decisions that were correct:
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+Where:
+\begin{itemize}
+  \item $TP + TN$ is the total count of correct classifications.
+  \item $TP + TN + FP + FN$ is the grand total count of all evaluated messages.
+\end{itemize}
+
+\subsection{Precision}
+Precision measures reliability when the model sounds an alarm.
+Out of everything labeled positive, what fraction was truly positive?
+\begin{equation}
+\text{Precision} = \frac{TP}{TP + FP}
+\end{equation}
+Where:
+\begin{itemize}
+  \item $TP$ is the count of correctly caught positive items.
+  \item $TP + FP$ is the total count of items the model predicted as positive.
+\end{itemize}
+
+\subsection{Recall (Sensitivity)}
+Recall measures the model's coverage.
+Out of all genuine positive cases in the dataset, what fraction did the model find?
+\begin{equation}
+\text{Recall} = \frac{TP}{TP + FN}
+\end{equation}
+Where:
+\begin{itemize}
+  \item $TP$ is the count of caught positive items.
+  \item $TP + FN$ is the total count of actual positive items in reality.
+\end{itemize}
+
+\subsection{Specificity (True Negative Rate)}
+Specificity measures how well the model avoids false alarms on negative data:
+\begin{equation}
+\text{Specificity} = \frac{TN}{TN + FP}
+\end{equation}
+Where:
+\begin{itemize}
+  \item $TN$ is the count of correctly identified negative instances.
+  \item $TN + FP$ is the total count of actual negative instances.
+\end{itemize}
+
+\subsection{The F1-Score}
+Precision and recall often pull in opposite directions.
+If a classifier labels everything positive, recall hits $100\%$ but precision drops.
+The \vocab{F1-score} computes their \vocab{harmonic mean}:
+\begin{equation}
+F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+\begin{intuition}
+Why do we choose a harmonic mean instead of a simple average?
+A regular arithmetic average allows a terrible score to hide behind a great score.
+If precision is $1.0$ and recall is $0.0$, their arithmetic mean is $0.5$.
+The harmonic mean punishes the zero and falls straight to $0.0$.
+It requires both numbers to be strong to earn a high score.
+\end{intuition}
+
+\begin{worked}{Step-by-step arithmetic evaluation of a spam classifier}
+Suppose a test set contains $100$ messages.
+The model produces: $TP = 35$, $FP = 10$, $FN = 5$, and $TN = 50$.
+Compute all five evaluation metrics with complete arithmetic steps.
+\begin{steps}
+  \item \textbf{Check the total count.}
+        $TP + FP + FN + TN = 35 + 10 + 5 + 50 = 100$.
+        The numbers account for every message in the sample.
+  \item \textbf{Compute Accuracy.}
+        Add true positives and true negatives: $35 + 50 = 85$.
+        Divide by the total: $\frac{85}{100} = 0.85$.
+        Accuracy is \textbf{85.0\%}.
+  \item \textbf{Compute Precision.}
+        Add true positives and false alarms: $35 + 10 = 45$.
+        Divide $TP$ by this sum: $\frac{35}{45} \approx 0.7778$.
+        Precision is \textbf{77.78\%}.
+  \item \textbf{Compute Recall.}
+        Add true positives and missed cases: $35 + 5 = 40$.
+        Divide $TP$ by this sum: $\frac{35}{40} = 0.8750$.
+        Recall is \textbf{87.50\%}.
+  \item \textbf{Compute Specificity.}
+        Add true negatives and false alarms: $50 + 10 = 60$.
+        Divide $TN$ by this sum: $\frac{50}{60} \approx 0.8333$.
+        Specificity is \textbf{83.33\%}.
+  \item \textbf{Compute F1-Score.}
+        Multiply precision by recall: $0.7778 \times 0.8750 = 0.680575$.
+        Add precision and recall: $0.7778 + 0.8750 = 1.6528$.
+        Divide the product by the sum: $\frac{0.680575}{1.6528} \approx 0.41177$.
+        Multiply by 2: $2 \times 0.41177 \approx 0.8235$.
+        The final F1-score is \textbf{0.8235} (or \textbf{82.35\%}).
+\end{steps}
+\end{worked}
+
+\begin{waitwhat}
+In spam filtering, a false positive hurts far more than a false negative!
+A false negative leaves an annoying advertisement in your inbox.
+A false positive throws an urgent job interview offer into the spam folder.
+That is why engineers configure spam filters for high precision over recall.
+\end{waitwhat}
+
+\begin{keytake}
+Never rely on accuracy alone when classes are unbalanced.
+Check precision for false alarm safety, recall for coverage, and F1-score for harmony.
+\end{keytake}
+
+\textbf{Where it's used.}
+Medical diagnosis models require high recall so they never miss an illness.
+Legal discovery systems balance precision to avoid sorting through millions of irrelevant pages.
+
+\section{Meaning as a Neighborhood: The Distributional Idea}
+\secsub{You shall know a word by the company it keeps; context reveals meaning.}
+
+How should a computer represent the meaning of a word?
+In older databases, words were unique integer IDs: ``cat'' was ID 412, and ``dog'' was ID 890.
+These IDs told the computer nothing about word relationships.
+To the program, ``dog'' was as mathematically distant from ``puppy'' as from ``refrigerator''.
+
+\begin{everyday}
+Imagine reading a travel article about a dish containing an unfamiliar ingredient named ``ongchoi''.
+You read:
+``Stir-fried ongchoi with garlic is delicious.''
+``Fresh green ongchoi leaves taste crisp in soup.''
+Even without a dictionary, you know ongchoi is an edible leafy green vegetable.
+Its surrounding company revealed its meaning.
+\end{everyday}
+
+\begin{intuition}
+Linguist J.R. Firth stated in 1957: \emph{``You shall know a word by the company it keeps.''}
+This principle is called the \vocab{distributional hypothesis}.
+Words that appear in similar textual environments share similar semantic meanings.
+If ``oculist'' and ``eye-doctor'' appear near ``glasses'', ``vision'', and ``examined'', they sit close together in semantic space.
+\end{intuition}
+
+Linguists organize word relations into structured families:
+\begin{itemize}
+  \item \vocab{Synonymy}: Words sharing an identical sense (e.g., ``sofa'' and ``couch'').
+  \item \vocab{Antonymy}: Words with opposite values on one semantic dimension (e.g., ``hot'' and ``cold'').
+  \item \vocab{Similarity}: Words sharing core physical or conceptual features (e.g., ``behave'' and ``obey'').
+  \item \vocab{Relatedness}: Words connected by situations or semantic fields (e.g., ``coffee'', ``cup'', ``waiter'').
+  \item \vocab{Affective Dimensions}: Words carry emotional weight across three axes:
+        \vocab{valence} (pleasantness), \vocab{arousal} (intensity), and \vocab{dominance} (control).
+\end{itemize}
+
+\begin{keytake}
+Do not treat words as isolated symbol IDs.
+Words acquire meaning through their neighbors across a large collection of text.
+\end{keytake}
+
+\textbf{Where it's used.}
+Search engines use semantic similarity to match queries like ``cheap flights'' to documents offering ``budget airline tickets''.
+
+\section{Counting Words: Co-occurrence, Angle Similarity, and TF-IDF}
+\secsub{Raw counts favour common words; angle similarity and TF-IDF fix the bias.}
+
+To turn the distributional hypothesis into math, we tally word counts in a table.
+We call this a \vocab{co-occurrence matrix}.
+Rows represent target words.
+Columns represent context words appearing within a sliding window $C$ (such as $\pm 2$ words).
+
+\housefig[0.78]{figures/fig_cosine_vectors.png}{Geometric vectors for three words. The small angle between 'digital' and 'information' shows their high similarity.}
+
+Consider this count table drawn from textbook corpus experiments:
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Word} & \textbf{pie} & \textbf{data} & \textbf{computer} \\
+\midrule
+cherry & 442 & 8 & 2 \\
+digital & 5 & 1683 & 1670 \\
+information & 5 & 3982 & 3325 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{The Dot Product and Its Length Flaw}
+We could compare two vectors $\mathbf{u}$ and $\mathbf{v}$ using their \vocab{dot product}:
+\begin{equation}
+\mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{d} u_i v_i
+\end{equation}
+Where:
+\begin{itemize}
+  \item $\mathbf{u}$ and $\mathbf{v}$ are vectors of length $d$.
+  \item $u_i$ and $v_i$ are the numerical counts in dimension $i$.
+\end{itemize}
+
+Why is the raw dot product flawed?
+It suffers from a severe \vocab{length bias}.
+Frequent words like ``the'', ``have'', or ``good'' occur thousands of times across texts.
+Their long vector lengths artificially inflate dot products, making them look similar to everything.
+
+\subsection{Cosine Similarity: Measuring the Pure Angle}
+We eliminate length bias by dividing the dot product by the \vocab{Euclidean length} ($L_2$ norm) of both vectors:
+\begin{equation}
+\text{cosine}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|} = \frac{\sum_{i=1}^{d} u_i v_i}{\sqrt{\sum_{i=1}^{d} u_i^2} \sqrt{\sum_{i=1}^{d} v_i^2}}
+\end{equation}
+Where:
+\begin{itemize}
+  \item $\|\mathbf{u}\| = \sqrt{\sum_{i=1}^d u_i^2}$ is the geometric length of vector $\mathbf{u}$.
+  \item $\|\mathbf{v}\| = \sqrt{\sum_{i=1}^d v_i^2}$ is the geometric length of vector $\mathbf{v}$.
+\end{itemize}
+Because word counts are non-negative, this score ranges strictly from $0.0$ (orthogonal, sharing no context) to $1.0$ (pointing in the identical direction).
+
+\begin{worked}{Step-by-step cosine similarity calculation}
+Calculate the exact cosine similarity between ``cherry'' and ``information'' using our count matrix.
+\begin{steps}
+  \item \textbf{State the vector components.}
+        $\mathbf{u} = \text{cherry} = [442, 8, 2]$.
+        $\mathbf{v} = \text{information} = [5, 3982, 3325]$.
+  \item \textbf{Calculate the dot product $\mathbf{u} \cdot \mathbf{v}$.}
+        Multiply matching coordinates:
+        $442 \times 5 = 2210$.
+        $8 \times 3982 = 31856$.
+        $2 \times 3325 = 6650$.
+        Sum all three products:
+        $\mathbf{u} \cdot \mathbf{v} = 2210 + 31856 + 6650 = 40716$.
+  \item \textbf{Calculate the squared length of vector $\mathbf{u}$.}
+        Square each component:
+        $442^2 = 195364$.
+        $8^2 = 64$.
+        $2^2 = 4$.
+        Sum: $195364 + 64 + 4 = 195432$.
+        Take the square root: $\|\mathbf{u}\| = \sqrt{195432} \approx 442.0769$.
+  \item \textbf{Calculate the squared length of vector $\mathbf{v}$.}
+        Square each component:
+        $5^2 = 25$.
+        $3982^2 = 15856324$.
+        $3325^2 = 11055625$.
+        Sum: $25 + 15856324 + 11055625 = 26911974$.
+        Take the square root: $\|\mathbf{v}\| = \sqrt{26911974} \approx 5187.6752$.
+  \item \textbf{Multiply the two vector lengths.}
+        $\|\mathbf{u}\| \|\mathbf{v}\| = 442.0769 \times 5187.6752 \approx 2293351.4$.
+  \item \textbf{Divide dot product by length product.}
+        $\text{cosine}(\mathbf{u}, \mathbf{v}) = \frac{40716}{2293351.4} \approx 0.01775$.
+  \item \textbf{Interpret the score.}
+        The cosine similarity is tiny (\textbf{0.0178}).
+        This confirms that ``cherry'' and ``information'' share almost no semantic context.
+        By contrast, comparing ``digital'' and ``information'' yields a high cosine score of \textbf{0.9963}.
+\end{steps}
+\end{worked}
+
+\subsection{TF-IDF Weighting: Taming Frequent Terms}
+Raw counts have another issue: universally common words dominate frequency tables.
+We balance raw counts using \vocab{TF-IDF} (Term Frequency--Inverse Document Frequency).
+
+\housefig[0.78]{figures/fig_tfidf_weighting.png}{Sublinear term frequency scaling. Taking the log prevents words with huge raw counts from dominating.}
+
+\paragraph{Term Frequency ($TF$).}
+We squash raw counts with a base-10 logarithm. A word appearing ten times should not outweigh another tenfold:
+\begin{equation}
+\text{TF}(t, d) = \log_{10}(\text{count}(t, d) + 1)
+\end{equation}
+
+\paragraph{Inverse Document Frequency ($IDF$).}
+If a term appears across every document, it holds no distinguishing power.
+Let $N$ be the total documents in the library, and $df_t$ be the count of documents containing term $t$:
+\begin{equation}
+\text{IDF}(t) = \log_{10}\left(\frac{N}{df_t}\right)
+\end{equation}
+
+\paragraph{Combined TF-IDF Score.}
+We multiply the two terms:
+\begin{equation}
+\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
+\end{equation}
+
+\begin{worked}{Step-by-step TF-IDF computation on Shakespeare plays}
+Suppose Shakespeare wrote $N = 37$ plays.
+In a target play, the word ``wit'' appears $\text{count} = 20$ times.
+The word ``wit'' occurs in $df = 34$ of the 37 plays.
+Compute its complete TF-IDF score.
+\begin{steps}
+  \item \textbf{Compute squashed Term Frequency.}
+        Add 1 to count: $20 + 1 = 21$.
+        Take the base-10 log: $\text{TF} = \log_{10}(21) \approx 1.3222$.
+  \item \textbf{Compute Inverse Document Frequency.}
+        Compute document ratio: $\frac{N}{df} = \frac{37}{34} \approx 1.0882$.
+        Take the base-10 log: $\text{IDF} = \log_{10}(1.0882) \approx 0.0367$.
+  \item \textbf{Multiply both factors.}
+        $\text{TF-IDF} = 1.3222 \times 0.0367 \approx 0.0485$.
+  \item \textbf{Compare with a universal word.}
+        If a word like ``good'' appears in all 37 plays ($df=37$), its $\text{IDF} = \log_{10}(37/37) = \log_{10}(1) = 0$.
+        Its TF-IDF drops to exactly \textbf{0.0}, removing it from consideration.
+\end{steps}
+\end{worked}
+
+\begin{keytake}
+Cosine similarity removes length bias by dividing by geometric norms.
+TF-IDF down-weights words that appear everywhere, boosting rare and informative terms.
+\end{keytake}
+
+\section{Dense Vectors: Why Word2Vec Shrinks the Space}
+\secsub{Sparse 50,000-word tables waste memory; dense 300-number vectors capture latent meaning.}
+
+Co-occurrence tables produce vectors with $|V|$ dimensions, where $|V|$ is the total vocabulary size (often $20{,}000$ to $50{,}000$).
+These vectors are \vocab{sparse}, meaning almost every number is zero.
+Sparse vectors waste storage memory, fail to capture synonyms, and cannot generalize to unseen word pairs.
+
+To fix this, modern NLP trains \vocab{dense embeddings}.
+Every word becomes a compact vector of $100$ to $300$ continuous numbers.
+
+\housefig[0.85]{figures/fig_cbow_architecture.png}{The CBOW architecture. Surrounding context words average together to predict the center target word.}
+
+\housefig[0.85]{figures/fig_skipgram_architecture.png}{The Skip-gram architecture. A single target word predicts surrounding context words.}
+
+In 2013, Mikolov and colleagues introduced \vocab{Word2Vec} with two primary training setups:
+\begin{enumerate}
+  \item \vocab{Continuous Bag-of-Words (CBOW)}: Looks at surrounding context words within window $C$ and predicts the missing center word. It trains quickly and works well for frequent words.
+  \item \vocab{Skip-Gram with Negative Sampling (SGNS)}: Looks at a single center word and predicts its surrounding context words. It performs exceptionally well on small corpora and rare words.
+\end{enumerate}
+
+\begin{intuition}
+Window size controls what embeddings learn.
+A small window like $C = \pm 2$ captures grammatical and functional synonyms.
+A large window like $C = \pm 5$ or $\pm 10$ captures broad topical associations like ``doctor'' and ``hospital''.
+\end{intuition}
+
+\begin{keytake}
+Dense vectors compress vocabulary into low-dimensional semantic space.
+Skip-gram predicts context from a center word, while CBOW predicts the center word from context.
+\end{keytake}
+
+\section{Skip-Gram with Negative Sampling: The Math Step by Step}
+\secsub{A binary classifier turns vector dot products into probabilities using logistic loss.}
+
+Now we unpack the complete mathematics of Skip-Gram with Negative Sampling (SGNS).
+Every single formula is stepped through line by line, naming every symbol.
+
+\subsection{Formulation as Binary Classification}
+Instead of computing expensive softmax probabilities over all $50{,}000$ words, SGNS reframes training as simple binary logistic regression.
+Given a target word $w$ and a context word $c$, the model answers:
+\emph{Is word $c$ a real neighbor of word $w$?}
+
+Let:
+\begin{itemize}
+  \item $\mathbf{w} \in \mathbb{R}^d$ be the target embedding vector of length $d$.
+  \item $\mathbf{c} \in \mathbb{R}^d$ be the context embedding vector of length $d$.
+  \item $\sigma(z) = \frac{1}{1 + e^{-z}}$ be the \vocab{sigmoid function}, squashing any real number $z$ into a probability in $(0, 1)$.
+\end{itemize}
+
+The probability that $c$ is a genuine positive neighbor of $w$ is:
+\begin{equation}
+P(+ \mid w, c) = \sigma(\mathbf{w} \cdot \mathbf{c}) = \frac{1}{1 + e^{-\mathbf{w} \cdot \mathbf{c}}}
+\end{equation}
+
+The probability that $c$ is not a neighbor (a negative sample) is:
+\begin{equation}
+P(- \mid w, c) = 1 - P(+ \mid w, c) = 1 - \sigma(\mathbf{w} \cdot \mathbf{c}) = \sigma(-\mathbf{w} \cdot \mathbf{c}) = \frac{1}{1 + e^{\mathbf{w} \cdot \mathbf{c}}}
+\end{equation}
+
+\subsection{The Loss Function for One Target Word}
+For each true co-occurring pair $(w, c_{\text{pos}})$, we pick $k$ fake noise words $(c_{\text{neg},1}, \dots, c_{\text{neg},k})$ sampled from the unigram noise distribution $P_n(w) \propto U(w)^{3/4}$.
+We want to maximize $P(+ \mid w, c_{\text{pos}})$ while maximizing $P(- \mid w, c_{\text{neg},i})$.
+Taking negative log-likelihood gives our \vocab{log loss}:
+\begin{equation}
+L = - \log \sigma(\mathbf{w} \cdot \mathbf{c}_{\text{pos}}) - \sum_{i=1}^{k} \log \sigma(-\mathbf{w} \cdot \mathbf{c}_{\text{neg},i})
+\end{equation}
+
+\subsection{Deriving the Gradients}
+We use the key calculus identity for the sigmoid function:
+\begin{equation}
+\frac{d}{dz} \log \sigma(z) = 1 - \sigma(z)
+\end{equation}
+and
+\begin{equation}
+\frac{d}{dz} \log \sigma(-z) = -\sigma(z)
+\end{equation}
+
+Let us define target label $t_j$:
+\begin{equation}
+t_j =
+\begin{cases}
+1 & \text{if } c_j \text{ is the positive context word } c_{\text{pos}} \\
+0 & \text{if } c_j \text{ is a negative noise word } c_{\text{neg}}
+\end{cases}
+\end{equation}
+
+The prediction error for any context candidate $c_j$ is:
+\begin{equation}
+e_j = \sigma(\mathbf{w} \cdot \mathbf{c}_j) - t_j
+\end{equation}
+
+By the chain rule of calculus:
+\begin{enumerate}
+  \item The derivative of loss $L$ with respect to context vector $\mathbf{c}_j$ is:
+        \begin{equation}
+        \frac{\partial L}{\partial \mathbf{c}_j} = (\sigma(\mathbf{w} \cdot \mathbf{c}_j) - t_j) \mathbf{w} = e_j \mathbf{w}
+        \end{equation}
+        \emph{Why: We take the derivative with respect to $\mathbf{c}_j$, so the dot product rule leaves vector $\mathbf{w}$ scaled by prediction error.}
+  \item The derivative of loss $L$ with respect to target vector $\mathbf{w}$ is:
+        \begin{equation}
+        \frac{\partial L}{\partial \mathbf{w}} = \sum_{j=1}^{1 + k} (\sigma(\mathbf{w} \cdot \mathbf{c}_j) - t_j) \mathbf{c}_j = \sum_{j=1}^{1 + k} e_j \mathbf{c}_j
+        \end{equation}
+        \emph{Why: The target word $\mathbf{w}$ interacts with every context word, so its gradient sums errors across all $1 + k$ candidates.}
+\end{enumerate}
+
+\subsection{Stochastic Gradient Descent (SGD) Update}
+With learning rate $\eta$, we adjust parameters in the opposite direction of the gradient:
+\begin{align}
+\mathbf{c}_j &\leftarrow \mathbf{c}_j - \eta \frac{\partial L}{\partial \mathbf{c}_j} = \mathbf{c}_j - \eta \, e_j \mathbf{w} \\
+\mathbf{w} &\leftarrow \mathbf{w} - \eta \frac{\partial L}{\partial \mathbf{w}} = \mathbf{w} - \eta \sum_{j=1}^{1+k} e_j \mathbf{c}_j
+\end{align}
+
+\housefig[0.75]{figures/fig_sgns_gradient_step.png}{Geometric update under SGNS. The target vector shifts toward true context and moves away from negative samples.}
+
+\begin{worked}{Full numerical walkthrough of SGNS on 'Ned Stark'}
+Corpus sentence: \texttt{"Ned Stark is the most honourable man"}.
+Target word: $w = \text{"Ned"}$.
+Positive context word: $c_1 = \text{"Stark"}$ ($t_1 = 1$).
+$k = 3$ negative noise words: $c_2 = \text{"pimples"}$, $c_3 = \text{"zebra"}$, $c_4 = \text{"idiot"}$ ($t_2 = t_3 = t_4 = 0$).
+Learning rate: $\eta = 0.05$.
+Dimensionality: $d = 3$.
+
+Initial embeddings:
+\begin{align*}
+\mathbf{w} &= [-0.018,\, 0.404,\, -0.317] \\
+\mathbf{c}_1 \text{ (Stark)} &= [0.116,\, 0.723,\, -0.689] \\
+\mathbf{c}_2 \text{ (pimples)} &= [-0.940,\, 0.601,\, 0.146] \\
+\mathbf{c}_3 \text{ (zebra)} &= [-0.622,\, 0.811,\, 0.640] \\
+\mathbf{c}_4 \text{ (idiot)} &= [-0.077,\, -0.375,\, -0.056]
+\end{align*}
+
+\begin{steps}
+  \item \textbf{Forward Pass: Dot Products.}
+        Calculate $\mathbf{w} \cdot \mathbf{c}_j$ for each word:
+        \begin{itemize}
+          \item Stark: $(-0.018)(0.116) + (0.404)(0.723) + (-0.317)(-0.689) = -0.002088 + 0.292092 + 0.218413 = 0.508417 \approx 0.508$.
+          \item pimples: $(-0.018)(-0.940) + (0.404)(0.601) + (-0.317)(0.146) = 0.016920 + 0.242804 - 0.046282 = 0.213442 \approx 0.213$.
+          \item zebra: $(-0.018)(-0.622) + (0.404)(0.811) + (-0.317)(0.640) = 0.011196 + 0.327644 - 0.202880 = 0.135960 \approx 0.136$.
+          \item idiot: $(-0.018)(-0.077) + (0.404)(-0.375) + (-0.317)(-0.056) = 0.001386 - 0.151500 + 0.017752 = -0.132362 \approx -0.132$.
+        \end{itemize}
+  \item \textbf{Forward Pass: Sigmoid Output.}
+        Compute $\sigma(z) = \frac{1}{1 + e^{-z}}$:
+        \begin{itemize}
+          \item $\sigma(0.508) = \frac{1}{1 + e^{-0.508}} = 0.6243 \approx 0.624$.
+          \item $\sigma(0.213) = \frac{1}{1 + e^{-0.213}} = 0.5531 \approx 0.553$.
+          \item $\sigma(0.136) = \frac{1}{1 + e^{-0.136}} = 0.5339 \approx 0.534$.
+          \item $\sigma(-0.132) = \frac{1}{1 + e^{0.132}} = 0.4671 \approx 0.467$.
+        \end{itemize}
+  \item \textbf{Backward Pass: Prediction Error $e_j = \sigma - t_j$.}
+        \begin{itemize}
+          \item Stark ($t=1$): $e_1 = 0.624 - 1.0 = -0.376$.
+          \item pimples ($t=0$): $e_2 = 0.553 - 0.0 = 0.553$.
+          \item zebra ($t=0$): $e_3 = 0.534 - 0.0 = 0.534$.
+          \item idiot ($t=0$): $e_4 = 0.467 - 0.0 = 0.467$.
+        \end{itemize}
+  \item \textbf{Gradients for Context Vectors $\frac{\partial L}{\partial \mathbf{c}_j} = e_j \mathbf{w}$.}
+        Multiply error $e_j$ by vector $\mathbf{w} = [-0.018, 0.404, -0.317]$:
+        \begin{itemize}
+          \item Stark: $-0.376 \times [-0.018, 0.404, -0.317] = [0.00677, -0.15190, 0.11919]$.
+          \item pimples: $0.553 \times [-0.018, 0.404, -0.317] = [-0.00995, 0.22341, -0.17530]$.
+          \item zebra: $0.534 \times [-0.018, 0.404, -0.317] = [-0.00961, 0.21574, -0.16928]$.
+          \item idiot: $0.467 \times [-0.018, 0.404, -0.317] = [-0.00841, 0.18867, -0.14804]$.
+        \end{itemize}
+  \item \textbf{Update Context Vectors $\mathbf{c}_j \leftarrow \mathbf{c}_j - \eta \frac{\partial L}{\partial \mathbf{c}_j}$ with $\eta = 0.05$.}
+        \begin{itemize}
+          \item Stark: $[0.116, 0.723, -0.689] - 0.05 \times [0.00677, -0.15190, 0.11919] = [0.116, 0.731, -0.695]$.
+          \item pimples: $[-0.940, 0.601, 0.146] - 0.05 \times [-0.00995, 0.22341, -0.17530] = [-0.940, 0.590, 0.155]$.
+          \item zebra: $[-0.622, 0.811, 0.640] - 0.05 \times [-0.00961, 0.21574, -0.16928] = [-0.622, 0.800, 0.648]$.
+          \item idiot: $[-0.077, -0.375, -0.056] - 0.05 \times [-0.00841, 0.18867, -0.14804] = [-0.077, -0.384, -0.049]$.
+        \end{itemize}
+  \item \textbf{Gradient for Target Vector $\frac{\partial L}{\partial \mathbf{w}} = \sum_{j=1}^4 e_j \mathbf{c}_j$.}
+        Compute each $e_j \mathbf{c}_j$:
+        \begin{itemize}
+          \item $-0.376 \times [0.116, 0.723, -0.689] = [-0.04362, -0.27185, 0.25906]$.
+          \item $0.553 \times [-0.940, 0.601, 0.146] = [-0.51982, 0.33235, 0.08074]$.
+          \item $0.534 \times [-0.622, 0.811, 0.640] = [-0.33215, 0.43307, 0.34176]$.
+          \item $0.467 \times [-0.077, -0.375, -0.056] = [-0.03596, -0.17512, -0.02615]$.
+        \end{itemize}
+        Sum all four component-wise:
+        $\frac{\partial L}{\partial \mathbf{w}} = [-0.93155,\, 0.31845,\, 0.65541]$.
+  \item \textbf{Update Target Vector $\mathbf{w} \leftarrow \mathbf{w} - 0.05 \frac{\partial L}{\partial \mathbf{w}}$.}
+        $\mathbf{w}_{\text{new}} = [-0.018, 0.404, -0.317] - 0.05 \times [-0.93155, 0.31845, 0.65541]$ \\
+        $= [-0.018 - (-0.04658),\, 0.404 - 0.01592,\, -0.317 - 0.03277]$ \\
+        $= [\mathbf{0.029},\, \mathbf{0.388},\, \mathbf{-0.350}]$.
+\end{steps}
+\end{worked}
+
+\begin{keytake}
+SGNS turns vector learning into simple logistic regression updates.
+Each step pulls target words toward true neighbors and pushes them away from noise words.
+\end{keytake}
+
+\section{Global Ratios, Word Math, and Spam Detection}
+\secsub{GloVe captures global corpus statistics; vector arithmetic solves analogies.}
+
+Word2Vec scans text within small sliding local windows.
+In 2014, Pennington, Socher, and Manning created \vocab{GloVe} (Global Vectors).
+GloVe blends local context windows with global matrix counts across the entire library.
+
+\subsection{The GloVe Probability Ratio Intuition}
+Let $X$ denote the matrix of word-word co-occurrence counts.
+$X_{ij}$ counts how often word $j$ appears in the context of word $i$.
+The total context count for word $i$ is $X_i = \sum_k X_{ik}$.
+The conditional probability of word $k$ given word $i$ is:
+\begin{equation}
+P_{ik} = P(k \mid i) = \frac{X_{ik}}{X_i}
+\end{equation}
+
+GloVe's key insight is that meaning lives in the \vocab{ratio of co-occurrence probabilities}, rather than raw probabilities alone:
+\begin{equation}
+\text{Ratio} = \frac{P(k \mid \text{ice})}{P(k \mid \text{steam})}
+\end{equation}
+Test this ratio on different probe words $k$:
+\begin{itemize}
+  \item For $k = \text{"solid"}$: $P(k \mid \text{ice})$ is large, $P(k \mid \text{steam})$ is tiny. The ratio is very large ($\gg 1$).
+  \item For $k = \text{"gas"}$: $P(k \mid \text{ice})$ is tiny, $P(k \mid \text{steam})$ is large. The ratio is very small ($\ll 1$).
+  \item For $k = \text{"water"}$: Both relate to water. The ratio sits close to $1$.
+  \item For $k = \text{"fashion"}$: Neither relates to water phases. The ratio sits near $1$.
+\end{itemize}
+
+\subsection{Word Arithmetic and Analogical Reasoning}
+Dense embeddings capture regular linear directions in meaning space.
+We can solve analogy questions (``apple is to tree as grape is to what?'') using simple vector addition and subtraction:
+\begin{equation}
+\mathbf{v}_{\text{vine}} \approx \mathbf{v}_{\text{grape}} - \mathbf{v}_{\text{apple}} + \mathbf{v}_{\text{tree}}
+\end{equation}
+The classic example reveals gender direction:
+\begin{equation}
+\mathbf{v}_{\text{queen}} \approx \mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}}
+\end{equation}
+
+\housefig[0.78]{figures/fig_analogies_parallelogram.png}{The parallelogram model of analogical reasoning. Shifting by the gender vector transforms king to queen.}
+
+\subsection{End-to-End Spam Classification Pipeline}
+In our laboratory experiments, we connect these pieces into a complete text classification system:
+\begin{enumerate}
+  \item \vocab{CountVectorizer}: Tokenizes text, filters stop-words, and builds bag-of-words count vectors.
+  \item \vocab{TfidfTransformer}: Rescales raw counts into normalized TF-IDF scores.
+  \item \vocab{Multinomial Naive Bayes}: Learns conditional probability $P(\text{word} \mid \text{spam})$ to classify unseen SMS messages.
+\end{enumerate}
+
+\begin{keytake}
+GloVe uses global probability ratios to learn strong embeddings.
+Vector spaces allow linear analogies, and TF-IDF pipelines feed standard machine learning classifiers.
+\end{keytake}
+
+\newpage
+\section*{Self-Test Questions}
+\addcontentsline{toc}{section}{Self-Test Questions}
+
+Test your understanding of these core ideas.
+Formulate your own answer before reading the upside-down explanation below.
+
+\medskip
+\noindent\textbf{Question 1.} Why is an accuracy score of $95\%$ dangerous when evaluating a rare fraud detection system where fraud occurs in $1\%$ of transactions?
+\flipanswer{A dumb model that labels every single transaction as safe achieves 99\% accuracy while missing 100\% of fraud cases. In imbalanced problems, accuracy is misleading; you must evaluate precision and recall.}
+
+\medskip
+\noindent\textbf{Question 2.} In Skip-Gram with Negative Sampling, why do we use $U(w)^{3/4}$ rather than the true unigram distribution $U(w)$ for sampling negative words?
+\flipanswer{Raising probability to the power 0.75 boosts rare words. It also dampens frequent words like 'the', giving better contrast.}
+
+\medskip
+\noindent\textbf{Question 3.} Why does raw dot product fail as a reliable similarity measure between word vectors?
+\flipanswer{Dot product suffers from length bias. Frequent words appear more often and have longer geometric lengths, artificially inflating dot product scores regardless of topical meaning.}
+
+\medskip
+\noindent\textbf{Question 4.} What is the practical difference between stemming and lemmatization on the word ``studies''?
+\flipanswer{Stemming cuts endings by fixed rules and outputs 'studi' (not a real word). Lemmatization checks a vocabulary dictionary with part of speech tags and outputs the real lemma 'study'.}
+
+\newpage
+\begin{tcolorbox}[quiet={accent}{white},
+  borderline north={0.4pt}{0pt}{hairline},
+  borderline south={0.4pt}{0pt}{hairline},
+  title={\upshape\calloutlabel{The One-Page Pocket Card}}, fontupper=\normalsize]
+
+\textbf{Core Concepts in One Line:}
+\begin{itemize}
+  \item \textbf{Natural Language}: Fluid, ambiguous, context-dependent human communication.
+  \item \textbf{Preprocessing}: Clean $\rightarrow$ Tokenize $\rightarrow$ Stopword Filter $\rightarrow$ Lemmatize.
+  \item \textbf{Distributional Hypothesis}: Words occurring in similar contexts share similar meanings.
+  \item \textbf{Cosine Similarity}: $\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}$, measures angle while ignoring vector length.
+  \item \textbf{TF-IDF}: $\text{TF} \times \text{IDF} = \log_{10}(\text{count}+1) \times \log_{10}(N / df_t)$.
+  \item \textbf{Word2Vec SGNS}: $P(+ \mid w, c) = \sigma(\mathbf{w} \cdot \mathbf{c})$, adjusts embeddings with SGD.
+  \item \textbf{GloVe}: Embeds words by matching ratios of co-occurrence probabilities.
+\end{itemize}
+
+\vspace{6pt}
+\textbf{The Three Essential Equations:}
+\begin{align*}
+\text{Cosine Similarity:} \quad &\cos(\theta) = \frac{\sum_{i=1}^d u_i v_i}{\sqrt{\sum_{i=1}^d u_i^2} \sqrt{\sum_{i=1}^d v_i^2}} \\
+\text{Harmonic F1-Score:} \quad &F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} \\
+\text{SGNS Probability:} \quad &P(+ \mid w, c) = \frac{1}{1 + e^{-\mathbf{w} \cdot \mathbf{c}}}
+\end{align*}
+
+\vspace{6pt}
+\textbf{The Golden Decision Rule:}
+\begin{itemize}
+  \item Use \textbf{Precision} when false alarms carry a heavy penalty (e.g. deleting important emails).
+  \item Use \textbf{Recall} when missing a positive case is catastrophic (e.g. medical diagnosis).
+  \item Use \textbf{Dense Embeddings} (100--300 dims) over sparse counts to capture semantic generalization.
+\end{itemize}
+\end{tcolorbox}
+
+\newpage
+\section*{Glossary \& Symbols}
+\addcontentsline{toc}{section}{Glossary \& Symbols}
+
+\noindent\textbf{Key Terms.}
+\begin{description}[leftmargin=8.5em,style=nextline,font=\normalfont\bfseries\color{accent}]
+  \item[Tokenization] Splitting raw continuous text into discrete words or sentences.
+  \item[Lemmatization] Reducing inflected words to valid dictionary headwords using morphological tags.
+  \item[Precision] Fraction of positive model predictions that were correct ($TP / (TP + FP)$).
+  \item[Recall] Fraction of actual positive instances found by the model ($TP / (TP + FN)$).
+  \item[Cosine Similarity] Dot product normalized by vector lengths; evaluates angular alignment.
+  \item[TF-IDF] Weighting scheme balancing term count against document rarity.
+  \item[Embedding] Compact real-valued vector representing semantic meaning in geometric space.
+  \item[Skip-gram] Word2Vec setup where a center word predicts surrounding context words.
+  \item[Negative Sampling] Training trick pairing real context words with random noise words.
+  \item[GloVe] Unsupervised embedding algorithm modeling global word co-occurrence ratios.
+\end{description}
+
+\medskip
+\noindent\textbf{Symbols at a Glance.}
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$TP, FP, FN, TN$ & True Positives, False Positives, False Negatives, True Negatives \\
+$\mathbf{w}$ & Dense target word embedding vector \\
+$\mathbf{c}$ & Dense context word embedding vector \\
+$\sigma(z)$ & Sigmoid activation function, $1 / (1 + e^{-z})$, mapping $\mathbb{R} \rightarrow (0, 1)$ \\
+$\eta$ & Learning rate parameter for gradient descent update steps \\
+$N$ & Total number of documents in a collection \\
+$df_t$ & Document frequency: count of documents containing term $t$ \\
+$X_{ij}$ & Co-occurrence count of word $j$ appearing in the neighborhood of word $i$ \\
+$\|\mathbf{u}\|$ & Euclidean $L_2$ norm (geometric length) of vector $\mathbf{u}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
