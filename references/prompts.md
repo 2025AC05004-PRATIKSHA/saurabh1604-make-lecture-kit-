@@ -128,3 +128,12 @@ it passes. Show me the final lint output.
 
 **Tip:** when a kit already exists, follow-up prompts edit the same
 `output/<your-topic>/` folder and rebuild it — you never start over.
+
+
+Use make-lecture-kit on the attached <notes / PDF / slides>. Cover every 
+idea and every example in it, fill in the steps and intuition it skips, 
+and add worked examples for anything that has none. Keep the language 
+simple — this is my first time seeing this topic.
+Expand maths part step by step: name every symbol, show every 
+single step from one line to the next, and say in one plain sentence 
+why each step is taken. Then recompile the PDF.
